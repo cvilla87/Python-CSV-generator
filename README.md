@@ -57,25 +57,26 @@ The list of options that can be modified from `MAIN` section are the following:
 
 
 ### Creating a new dataset structure
-When creating a new dataset structure, we have first to understand the basic parts of it:
+In order to create a new dataset structure we have first to understand the different parts of it:
 
-    [Dataset_structure_name]
+    [dataset_structure_name]
     key1 = value1
     [...]
     keyN = valueN
 
-In the two current examples, `dummy` is the default dataset structure, and has a specific behaviour.<br>
-On the other hand, `creditcard` (and any other new dataset structure) will follow the Faker behaviour.<br>
+It is important to notice here about the difference in the values between `dummy` and the other datasets.<br>
+While for `dummy` it uses only integers that will follow a single hardcoded behaviour, for all other datasets 
+specific values will be needed, and they will follow the **Faker** behaviour.<br>
 Here are the main differences:
 
-| Structure  | Option key  | Option value  |
+| Structure  | Key         | Value         |
 |:---------- |:------------|:--------------|
-| dummy      |  It will be used as the header in the generated dataset. | Only integers are accepted. They will be used to indicate the length of the random text (`string.ascii_letters`).  |
-| creditcard |  *(Same as in dummy)* | Name of one of the Faker generator properties (these are packed inside [providers](https://faker.readthedocs.io/en/master/providers.html)). In case the provider generator doesn't exist for the indicated value, `text` will be used to generate random fake text. |
+| dummy      |  It is used as the header in the generated dataset. | Only integers are accepted. They are used to indicate the length of the random text (`string.ascii_letters`).  |
+| All others |  *Same as in dummy* | Name of one of the Faker generator properties (these are packed inside [providers](https://faker.readthedocs.io/en/master/providers.html)). In case the provider generator doesn't exist for the indicated value, `text` will be used to generate random fake text. |
 
 The only time that is needed to modify the code is when adding some Faker generator that requires some argument.<br>
-In this case, `custom_datatypes` option needs to be modified to add the name of the provider and the code must be 
-adapted in the same way as in the other cases. 
+If that's the case, `custom_datatypes` option needs to be modified to add the name of a valid Faker provider and the code must be 
+adapted in the same way as for in the other cases. 
 
 
 ## How to use Seed

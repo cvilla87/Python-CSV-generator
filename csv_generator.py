@@ -6,23 +6,29 @@ import codecs
 from faker import Faker
 
 
+def change_locale():
+    _curr_loc = random.choice(locales)
+    _curr_cty = _curr_loc[3:]
+    return Faker(_curr_loc), _curr_cty
+
+
 # Load and parse config file
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-main_cfg = config["MAIN"]
+main_cfg = config['MAIN']
 sep = main_cfg['sep']
 num_lines = main_cfg.getint('lines')
 set_header = main_cfg.getboolean('header')
 switch_locale = main_cfg.getboolean('switch_locale')
 days = main_cfg.getint('days_back')
-locales = [re.sub("\s", "", l) for l in list(main_cfg['locales'].split(","))]
-custom_datatypes = [re.sub("\s", "", l) for l in list(main_cfg['custom_datatypes'].split(","))]
+locales = [re.sub(r'\s', '', loc) for loc in list(main_cfg['locales'].split(','))]
+custom_datatypes = [re.sub(r'\s', '', loc) for loc in list(main_cfg['custom_datatypes'].split(','))]
 
 if config.has_section(main_cfg['dataset']):
     type_dataset = main_cfg['dataset']
 else:
-    type_dataset = "dummy"
+    type_dataset = 'dummy'
 
 header = sep.join([f[0] for f in config.items(type_dataset)])
 columns = sep.join([f[1] for f in config.items(type_dataset)])
@@ -37,7 +43,7 @@ else:
     fake = Faker()
     for col in columns.split(sep):
         try:
-            result = getattr(fake, col)()
+            _ = getattr(fake, col)()
             template.append(col)
         except AttributeError:
             if col in custom_datatypes:
@@ -46,7 +52,7 @@ else:
                 template.append("text")  # Faker "text" provider generator
 
 
-# Generation of the file
+# Generation of the full dataset into memory
 cont = 0
 dataset = []
 if set_header:
@@ -62,18 +68,14 @@ if type_dataset == "dummy":
         dataset.append(line.rstrip("|"))
         cont += 1
 else:
-    curr_loc = random.choice(locales)
-    curr_cty = curr_loc[3:]
-    fake = Faker(curr_loc)
+    fake, curr_cty = change_locale()
 
     while cont < num_lines:
         line = ""
 
         # If switch_locale is True and it has been generated 100 more rows, it will switch to a new locale.
         if switch_locale and cont % 100 == 0:
-            curr_loc = random.choice(locales)
-            curr_cty = curr_loc[3:]
-            fake = Faker(curr_loc)
+            fake, curr_cty = change_locale()
 
         # Each block of 100 rows will contain approximately 5 different people.
         fake.seed_instance(random.randint(0, 4))
@@ -101,6 +103,6 @@ else:
         cont += 1
 
 
-# Write to file just once
+# Write to file in one single action
 with codecs.open("data.csv", "w", encoding="utf-8") as f:
     f.writelines("\n".join(dataset))
